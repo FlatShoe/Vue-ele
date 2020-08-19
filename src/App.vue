@@ -1,28 +1,67 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Header-container :seller="sellers" />
+    <div class="tap border-bottom-1px">
+      <router-link class="tap-item" tag="span" to="/goods">商品</router-link>
+      <router-link class="tap-item" tag="span" to="/ratings">评论</router-link>
+      <router-link class="tap-item" tag="span" to="/sellers">商家</router-link>
+    </div>
+    <div class="content">
+      <keep-alive include="Goods,Ratings,Sellers">
+        <router-view></router-view>
+      </keep-alive>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import {sellers} from './api/sellers'
+import HeaderContainer from "./components/Header/header";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
+    HeaderContainer,
+  },
+  data () {
+    return {
+      sellers: {}
+    }
+  },
+  methods: {
+    /*
+    * @Description 获取商家信息
+    * @return undefined
+    */
+    async getSellers () {
+      const {status, data: {data: res}} = await sellers()
+      if (status !== 200) return
+      this.sellers = res 
+      this.$store.commit('upDataSeller', res)
+    }
+  },
+  mounted () {
+    this.getSellers()
   }
-}
+};
 </script>
 
 <style lang="less">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+@import "./common/style/mixin.less";
+.tap {
+  display: flex;
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  .border-bottom-1px(rgba(7, 17, 27, .1));
+  .tap-item {
+    flex: 1;
+    text-align: center;
+    font-size: 14px;
+    color: rgb(77, 85, 93);
+    &.active {
+      color: rgb(240, 20, 20);
+    }
+  }
 }
 </style>
